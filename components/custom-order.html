@@ -18,18 +18,26 @@
                                 <span class="bg-dark-900 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
                                 Pilih Produk & Material
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="space-y-2">
-                                    <label class="block text-sm font-medium text-slate-700">Jenis Pakaian</label>
-                                   <!-- Dropdown Jenis Pakaian -->
-<select><label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Pakaian</label>
-<select id="product-select" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-primary-500">
-    <option value="kaos" selected>Kaos (T-Shirt)</option>
-    <option value="polo">Polo Shirt</option>
-    <option value="kemeja">Kemeja (PDH/PDL)</option>
-    <option value="jaket">Jaket / Hoodie</option>
-</select>
-                                </div>
+                            <!-- 1. Pilih Produk & Material -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Pakaian</label>
+        <select id="product-select" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-primary-500">
+            <option value="" disabled selected>-- Pilih Jenis --</option>
+            <option value="kaos">Kaos (T-Shirt)</option>
+            <option value="polo">Polo Shirt</option>
+            <option value="kemeja">Kemeja (PDH/PDL)</option>
+            <option value="jaket">Jaket / Hoodie</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Bahan <span class="text-slate-400 font-normal">(Pilih produk dulu)</span></label>
+        <select id="fabric-select" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-primary-500 disabled:bg-slate-100 disabled:text-slate-400">
+            <option value="" disabled selected>-- Pilih Bahan --</option>
+        </select>
+    </div>
+</div>
                                 <div class="space-y-2">
                                     <label class="block text-sm font-medium text-slate-700">Jenis Bahan <span class="text-slate-400 text-xs font-normal">(Pilih produk dulu)</span></label>
                                     <select id="fabricType" disabled class="w-full bg-slate-100 border border-slate-300 text-slate-900 text-sm rounded-xl focus:ring-primary-500 focus:border-primary-500 block p-3 transition-colors outline-none cursor-not-allowed opacity-70">

@@ -92,13 +92,23 @@
     });
 
     function initSubmitHandler() {
-        const btn = document.getElementById('btn-submit-order') || document.querySelector('button[type="submit"]') || document.querySelector('.btn-order');
-        if (!btn) return;
+    // 1. Auto-trigger pilihan bahan agar tidak kosong/abu-abu saat halaman baru dimuat
+    const productSelect = document.getElementById('product-select') || document.querySelector('select');
+    if (productSelect) {
+        if (productSelect.selectedIndex <= 0 && productSelect.options.length > 1) {
+            productSelect.selectedIndex = 1;
+        }
+        productSelect.dispatchEvent(new Event('change'));
+    }
 
-        btn.onclick = async function (e) {
-            e.preventDefault();
-            btn.disabled = true;
-            btn.innerText = "Memproses Pesanan...";
+    // 2. Ambil elemen tombol WhatsApp
+    const btn = document.getElementById('btn-submit-order') || document.getElementById('btnSubmitOrder') || document.querySelector('button[type="submit"]');
+    if (!btn) return;
+
+    btn.onclick = async function (e) {
+        e.preventDefault();
+        btn.disabled = true;
+        btn.innerText = "Memproses Pesanan...";
 
             // 1. Ambil Nilai Form
             const produk = document.getElementById('sum-product')?.innerText || 'Kaos (T-Shirt)';

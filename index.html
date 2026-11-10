@@ -60,143 +60,124 @@
 
     <!-- SCRIPT UTAMA KONTROL SISTEM, BACKEND GOOGLE SHEETS & WHATSAPP -->
     <script>
-        // URL Apps Script Resmi Backend Spreadsheet Admin
-        const API_URL = "https://script.google.com/macros/s/AKfycby6sCUc3ApfdG3p8P9ZDWwn2vTNNesaaoPHCqGPv_0IMPOiTMpMGYbRtP0VqJm4FxOx/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycby6sCUc3ApfdG3p8P9ZDWwn2vTNNesaaoPHCqGPv_0IMPOiTMpMGYbRtP0VqJm4FxOx/exec";
 
-        // 1. ASYNC COMPONENT LOADER (Memuat Header, Contact, Footer, dll tanpa Error)
-        async function loadComponent(elementId, filePath) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            try {
-                let res = await fetch(filePath);
-                if (!res.ok) res = await fetch(`./${filePath}`);
-                if (!res.ok) res = await fetch(`../${filePath}`);
-                
-                if (res.ok) {
-                    el.innerHTML = await res.text();
-                    if (window.lucide) lucide.createIcons();
-                } else {
-                    console.warn(`Gagal memuat komponen: ${filePath}`);
-                }
-            } catch (err) {
-                console.error(`Error loading ${filePath}:`, err);
+    async function loadComponent(elementId, filePath) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        try {
+            let res = await fetch(filePath);
+            if (!res.ok) res = await fetch(`./${filePath}`);
+            if (res.ok) {
+                el.innerHTML = await res.text();
+                if (window.lucide) lucide.createIcons();
             }
+        } catch (err) {
+            console.error(`Error loading ${filePath}:`, err);
         }
+    }
 
-        // 2. INISIALISASI PEMANGGILAN KOMPONEN HARUS SAAT DOM READY
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadComponent('header-container', 'components/header.html');
-            await loadComponent('hero-container', 'components/hero.html');
-            await loadComponent('features-container', 'components/features.html');
-            await loadComponent('custom-order-container', 'components/custom-order.html');
-            await loadComponent('catalog-container', 'components/catalog.html');
-            await loadComponent('tracking-container', 'components/tracking.html');
-            await loadComponent('contact-container', 'components/contact.html');
-            await loadComponent('footer-container', 'components/footer.html');
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadComponent('header-container', 'components/header.html');
+        await loadComponent('hero-container', 'components/hero.html');
+        await loadComponent('features-container', 'components/features.html');
+        await loadComponent('custom-order-container', 'components/custom-order.html');
+        await loadComponent('catalog-container', 'components/catalog.html');
+        await loadComponent('tracking-container', 'components/tracking.html');
+        await loadComponent('contact-container', 'components/contact.html');
+        await loadComponent('footer-container', 'components/footer.html');
 
-            // Inisialisasi Handler Tombol Submit setelah komponen custom-order termuat
-            initOrderFormHandler();
-        });
+        // BINDING EVENT ONCLICK TOMBOL SUBMIT WA
+        setTimeout(initSubmitHandler, 500);
+    });
 
-        // 3. LOGIKA FORM PEMESANAN & KIRIM KE GOOGLE SHEETS + WA
-        function initOrderFormHandler() {
-            // Perbaikan Input Qty Biar Bisa Dihapus Bebas Saat Ketik
-            const qtyInputs = document.querySelectorAll('#size-inputs input, input[type="number"]');
-            qtyInputs.forEach(input => {
-                input.addEventListener('input', (e) => {
-                    if (e.target.value === '') return; // Biarkan kosong jika user menghapus
-                    if (typeof calculateTotal === 'function') calculateTotal();
-                });
-            });
+    function initSubmitHandler() {
+        const btn = document.getElementById('btn-submit-order') || document.querySelector('button[type="submit"]') || document.querySelector('.btn-order');
+        if (!btn) return;
 
-            // Handle Klik Tombol "Pesan via WhatsApp"
-            document.addEventListener('click', async (e) => {
-                const btnSubmit = e.target.closest('#btn-submit-order') || e.target.closest('.btn-order') || e.target.closest('button[type="submit"]');
-                if (!btnSubmit) return;
+        btn.onclick = async function (e) {
+            e.preventDefault();
+            btn.disabled = true;
+            btn.innerText = "Memproses Pesanan...";
 
-                e.preventDefault();
+            // 1. Ambil Nilai Form
+            const produk = document.getElementById('sum-product')?.innerText || 'Kaos (T-Shirt)';
+            const kain = document.getElementById('sum-fabric')?.innerText || 'Cotton Combed 30s';
+            const warna = document.getElementById('cust-color')?.value || document.querySelector('input[placeholder*="Warna"]')?.value || 'Hitam';
+            const aplikasi = document.getElementById('sum-print')?.innerText || 'Sablon 1 Sisi';
+            const linkDesain = document.getElementById('cust-design')?.value || 'Tidak ada link';
+            const totalHarga = document.getElementById('sum-total')?.innerText || 'Rp 0';
+            const nama = document.getElementById('cust-name')?.value || 'Pelanggan Soma';
+            const wa = document.getElementById('cust-wa')?.value || '085732915213';
 
-                // A. Ambil Data Form Sesuai Komponen
-                const produk = document.getElementById('sum-product')?.innerText || document.getElementById('product-select')?.value || 'Kaos (T-Shirt)';
-                const kain = document.getElementById('sum-fabric')?.innerText || document.getElementById('fabric-select')?.value || 'Cotton Combed 30s';
-                const warna = document.getElementById('cust-color')?.value || document.querySelector('input[placeholder*="Warna"]')?.value || 'Hitam';
-                const aplikasi = document.getElementById('sum-print')?.innerText || document.getElementById('print-select')?.value || 'Sablon 1 Sisi';
-                const linkDesain = document.getElementById('cust-design')?.value || 'Tidak ada link';
-                const totalHarga = document.getElementById('sum-total')?.innerText || 'Rp 0';
-                const nama = document.getElementById('cust-name')?.value || 'Pelanggan';
-                const wa = document.getElementById('cust-wa')?.value || '085732915213';
-                const alamat = document.getElementById('cust-address')?.value || '-';
+            // 2. Format Ukuran
+            let rincianUkuranArr = [];
+            let totalQtyPcs = 0;
+            const sizeInputs = document.querySelectorAll('#size-inputs input, input[id*="size"], input[name*="size"]');
 
-                // B. Baca Rincian Ukuran Per Pcs (S, M, L, XL, XXL, 3XL)
-                let rincianUkuranArr = [];
-                let totalQtyPcs = 0;
-                const sizeInputs = document.querySelectorAll('#size-inputs input, input[id*="size"], input[name*="size"]');
-
-                sizeInputs.forEach(inp => {
-                    const val = parseInt(inp.value) || 0;
-                    if (val > 0) {
-                        let label = inp.getAttribute('data-size') || inp.id.replace('size-', '').replace('input-', '').toUpperCase();
-                        rincianUkuranArr.push(`${label}: ${val} Pcs`);
-                        totalQtyPcs += val;
-                    }
-                });
-
-                const rincianText = rincianUkuranArr.length > 0 ? rincianUkuranArr.join(', ') : (document.getElementById('size-notes')?.value || `${totalQtyPcs || 12} Pcs`);
-                const noResi = "KNF-" + Date.now().toString().slice(-6);
-
-                // C. Simpan Otomatis ke Google Sheets Backend Admin
-                try {
-                    await fetch(API_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify({
-                            nama: nama,
-                            wa: wa,
-                            alamat: alamat,
-                            produk: produk,
-                            kain: kain,
-                            warna: warna,
-                            aplikasi: aplikasi,
-                            rincianUkuran: rincianText,
-                            linkDesain: linkDesain,
-                            totalHarga: totalHarga,
-                            noPesanan: noResi
-                        })
-                    });
-                } catch (err) {
-                    console.warn("Simpan otomatis ke Spreadsheet berjalan di background:", err);
+            sizeInputs.forEach(inp => {
+                const val = parseInt(inp.value) || 0;
+                if (val > 0) {
+                    let label = inp.getAttribute('data-size') || inp.id.replace('size-', '').toUpperCase();
+                    rincianUkuranArr.push(`${label}: ${val} Pcs`);
+                    totalQtyPcs += val;
                 }
-
-                // D. Susun Teks Pesan WhatsApp Rinci
-                const waNumber = "6285732915213";
-                let message = `Halo Soma Creative, saya ingin melakukan pemesanan custom dengan detail sebagai berikut:\n\n`;
-                message += `*NO. RESI:* ${noResi}\n\n`;
-                message += `*DETAIL PRODUK*\n`;
-                message += `• Jenis: ${produk}\n`;
-                message += `• Bahan: ${kain}\n`;
-                message += `• Warna: ${warna}\n`;
-                message += `• Aplikasi: ${aplikasi}\n\n`;
-
-                message += `*JUMLAH & UKURAN*\n`;
-                message += `• Kuantitas Total: ${totalQtyPcs || 12} Pcs\n`;
-                message += `• Rincian Ukuran: ${rincianText}\n\n`;
-
-                message += `*DESAIN & BIAYA*\n`;
-                message += `• Link File: ${linkDesain}\n`;
-                message += `• Estimasi Total: ${totalHarga}\n\n`;
-                message += `Mohon info lebih lanjut untuk proses fiksasi desain dan pembayaran. Terima kasih!`;
-
-                // E. Buka WA di Tab Baru
-                window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
-
-                // F. Notifikasi Pop-up & Reset Kembali ke Beranda
-                setTimeout(() => {
-                    alert(`✅ Pesanan Berhasil Dibuat!\n\nNomor Resi: ${noResi}\nData sudah masuk ke database spreadsheet admin Soma Creative.`);
-                    window.location.hash = "#";
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }, 500);
             });
-        }
-    </script>
+
+            const rincianText = rincianUkuranArr.length > 0 ? rincianUkuranArr.join(', ') : `${totalQtyPcs || 12} Pcs`;
+            const noResi = "KNF-" + Date.now().toString().slice(-6);
+
+            // 3. Kirim ke Google Sheets
+            try {
+                await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        nama: nama,
+                        wa: wa,
+                        produk: produk,
+                        kain: kain,
+                        warna: warna,
+                        aplikasi: aplikasi,
+                        rincianUkuran: rincianText,
+                        linkDesain: linkDesain,
+                        totalHarga: totalHarga,
+                        noPesanan: noResi
+                    })
+                });
+            } catch (err) {
+                console.warn("Gagal simpan ke sheets:", err);
+            }
+
+            // 4. Buka WhatsApp dengan Format Rinci
+            const waMsg = 
+`Halo Soma Creative, saya ingin melakukan pemesanan custom dengan detail sebagai berikut:
+
+*NO. RESI:* ${noResi}
+
+*DETAIL PRODUK*
+• Jenis: ${produk}
+• Bahan: ${kain}
+• Warna: ${warna}
+• Aplikasi: ${aplikasi}
+
+*JUMLAH & UKURAN*
+• Kuantitas Total: ${totalQtyPcs || 12} Pcs
+• Detail Ukuran: ${rincianText}
+
+*DESAIN & BIAYA*
+• Link File: ${linkDesain}
+• Estimasi Total: ${totalHarga}
+
+Mohon info lebih lanjut untuk proses fiksasi desain dan pembayaran. Terima kasih!`;
+
+            window.open(`https://wa.me/6285732915213?text=${encodeURIComponent(waMsg)}`, '_blank');
+
+            // Reset Tombol
+            btn.disabled = false;
+            btn.innerText = "Pesan via WhatsApp";
+        };
+    }
+</script>
 </body>
 </html>

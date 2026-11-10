@@ -1,0 +1,131 @@
+<section id="lacak-pesanan" class="py-20 bg-white border-t border-slate-100">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <span class="bg-accent-500/10 text-accent-600 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase inline-block mb-3 border border-accent-500/20">
+                Sistem Pelacakan
+            </span>
+            <h2 class="text-3xl md:text-4xl font-bold text-dark-900 mb-3">Lacak Status Pesanan Anda</h2>
+            <p class="text-slate-600">Masukkan Kode Pesanan / Nomor Resi yang Anda dapatkan saat konfirmasi order untuk memantau proses produksi pakaian Anda.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm mb-8">
+            <form id="trackingForm" class="flex flex-col sm:flex-row gap-4">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="trackingInput" placeholder="Contoh Kode: MG-202601" class="w-full pl-12 pr-4 py-4 bg-white border border-slate-300 rounded-2xl text-slate-900 font-semibold placeholder:font-normal placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all uppercase">
+                </div>
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-md shadow-primary-600/20 flex items-center justify-center gap-2 shrink-0">
+                    <i data-lucide="package-search" class="w-5 h-5"></i> Cek Status
+                </button>
+            </form>
+
+            <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <span>Coba kode contoh:</span>
+                <button type="button" class="sample-code bg-white hover:bg-slate-200 text-primary-700 px-2.5 py-1 rounded-lg border border-slate-200 font-mono transition-colors" data-code="MG-202601">MG-202601 (Produksi)</button>
+                <button type="button" class="sample-code bg-white hover:bg-slate-200 text-primary-700 px-2.5 py-1 rounded-lg border border-slate-200 font-mono transition-colors" data-code="MG-202602">MG-202602 (Selesai)</button>
+            </div>
+        </div>
+
+        <div id="trackingResult" class="hidden bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl transition-all">
+            <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-8 border-b border-slate-100 gap-4">
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Kode Pesanan</span>
+                    <h3 class="text-2xl font-extrabold text-dark-900 flex items-center gap-2">
+                        <span id="resTrackingCode">MG-202601</span>
+                        <span id="resBadgeStatus" class="bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full border border-primary-200">Dalam Produksi</span>
+                    </h3>
+                </div>
+                <div class="text-left md:text-right">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Estimasi Selesai</span>
+                    <p id="resEstDate" class="text-lg font-bold text-dark-900">18 November 2026</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-2xl mb-10 text-sm">
+                <div>
+                    <span class="text-slate-400 block text-xs">Pemesan</span>
+                    <span id="resCustomer" class="font-semibold text-dark-900">Komunitas Malang Creative</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-xs">Jenis Pakaian</span>
+                    <span id="resItem" class="font-semibold text-dark-900">Kaos Cotton Combed 30s</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-xs">Jumlah</span>
+                    <span id="resQty" class="font-semibold text-dark-900">50 Pcs</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-xs">Metode Aplikasi</span>
+                    <span id="resMethod" class="font-semibold text-dark-900">Sablon Plastisol 2 Sisi</span>
+                </div>
+            </div>
+
+            <div class="relative px-2 py-4">
+                <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-8">Progress Pengerjaan</h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
+                    <div id="step-1" class="step-item relative flex md:flex-col items-center gap-4 text-left md:text-center">
+                        <div class="step-icon w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold shadow-md z-10 shrink-0">
+                            <i data-lucide="check" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-dark-900 text-sm">Pesanan Diterima</h5>
+                            <p class="text-xs text-slate-500 mt-0.5">DP & Fiksasi Desain</p>
+                        </div>
+                    </div>
+
+                    <div id="step-2" class="step-item relative flex md:flex-col items-center gap-4 text-left md:text-center">
+                        <div class="step-icon w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold shadow-md z-10 shrink-0">
+                            <i data-lucide="scissors" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-dark-900 text-sm">Pemotongan Kain</h5>
+                            <p class="text-xs text-slate-500 mt-0.5">Potong Pola & Bahan</p>
+                        </div>
+                    </div>
+
+                    <div id="step-3" class="step-item relative flex md:flex-col items-center gap-4 text-left md:text-center">
+                        <div class="step-icon w-10 h-10 rounded-full bg-accent-500 text-white flex items-center justify-center font-bold shadow-md ring-4 ring-accent-500/20 z-10 shrink-0 animate-pulse">
+                            <i data-lucide="printer" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-accent-600 text-sm">Sablon / Bordir & Jahit</h5>
+                            <p class="text-xs text-slate-500 mt-0.5">Proses Cetak & Assembling</p>
+                        </div>
+                    </div>
+
+                    <div id="step-4" class="step-item relative flex md:flex-col items-center gap-4 text-left md:text-center opacity-40">
+                        <div class="step-icon w-10 h-10 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center font-bold z-10 shrink-0">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-dark-900 text-sm">Quality Control</h5>
+                            <p class="text-xs text-slate-500 mt-0.5">Inspeksi & Ironing/Packing</p>
+                        </div>
+                    </div>
+
+                    <div id="step-5" class="step-item relative flex md:flex-col items-center gap-4 text-left md:text-center opacity-40">
+                        <div class="step-icon w-10 h-10 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center font-bold z-10 shrink-0">
+                            <i data-lucide="truck" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-dark-900 text-sm">Siap Kirim / Ambil</h5>
+                            <p class="text-xs text-slate-500 mt-0.5">Pelunasan & Pengiriman</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span class="text-xs text-slate-500 flex items-center gap-1">
+                    <i data-lucide="info" class="w-4 h-4 text-primary-500"></i> Ada pertanyaan tentang pesanan ini?
+                </span>
+                <a id="btnAskTrackingWA" href="#" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-emerald-600 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-all shadow-md">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> Tanya CS via WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
